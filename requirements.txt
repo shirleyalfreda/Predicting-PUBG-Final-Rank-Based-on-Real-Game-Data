@@ -1,0 +1,28 @@
+# 核心数据处理
+numpy==1.26.4
+pandas==2.2.2
+scipy==1.13.0
+
+# 数据可视化
+matplotlib==3.8.4
+seaborn==0.13.2
+
+# 机器学习（Scikit-learn 全家桶）
+scikit-learn==1.5.0
+
+# 树模型
+xgboost==2.0.3
+lightgbm==4.3.0
+
+# 深度学习框架
+paddlepaddle==2.6.1
+paddlepaddle-gpu==2.6.1  # 如有 GPU 可换用此版本
+
+# 统计建模
+statsmodels==0.14.2
+
+# 进度条（可选，方便查看训练进度）
+tqdm==4.66.4
+
+# 其他工具
+joblib==1.4.2  # 模型保存与加载
