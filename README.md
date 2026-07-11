@@ -100,7 +100,7 @@ def add_features(df):
     df["kd_ratio"] = df["player_kills"] / (1 + df["player_dbno"])
     df["kd_ratio"] = df["kd_ratio"].replace([np.inf, -np.inf], np.nan).fillna(0)
     return df
-### VAE 非线性特征提取
+### 1. VAE 非线性特征提取
 我们引入了变分自编码器（VAE），对标准化后的特征进行非线性压缩，提取 16 维潜在特征，捕捉游戏行为中的深层模式。
 VAE 网络结构：输入层 (原始特征) → 128 → [μ, logσ²] → 采样 z (16维) → 128 → 重构层
 import paddle.nn as nn
@@ -130,7 +130,7 @@ class VAE(nn.Layer):
 X_train_all = np.hstack([X_train_scaled, z_train])
 X_test_all = np.hstack([X_test_scaled, z_test])
 
-### 特征选择
+### 2. 特征选择
 采用 “皮尔逊相关系数 + 互信息”双指标投票机制，保留被任一方法认定为重要的特征：
 from sklearn.feature_selection import mutual_info_regression
 #### 皮尔逊相关系数（捕捉线性关系）
@@ -152,11 +152,11 @@ X_final = X_train_all[:, mask]
 4、MLP	神经网络	多层感知机，4层（128-64-32-1）
 5、ResNet	神经网络	引入残差块，缓解退化问题
 6、Stacking	集成学习	XGBoost + LightGBM + MLP → RidgeCV
-### 评估指标
+### 1. 评估指标
 MAE（平均绝对误差）：衡量预测排名与实际排名的平均偏差
 R²（决定系数）：衡量模型对目标变量的解释程度
 Score = 100 - MAE（竞赛评分标准）
-### 实验结果对比
+### 2. 实验结果对比
 模型	MAE	R²	Score (100 - MAE)
 GLM（Gamma 分布 + Log 链接）	5.0165	0.7593	94.98
 XGBoost	4.5380	0.7669	95.46
@@ -165,7 +165,7 @@ MLP	15.36	0.5681	95.13
 ResNet	13.34	0.6507	86.66
 Stacking（集成学习）	4.7325	0.8543	95.27
 最佳 R² 由 Stacking 集成学习取得（0.8543），单模型最佳 MAE 由 XGBoost 取得（4.5380）。
-### 可视化结果
+### 3. 可视化结果
 线性模型 vs 树模型
 https://media/linear_tree_compare.png
 神经网络模型对比
@@ -214,22 +214,22 @@ PaddlePaddle 2.6+
 其他依赖见 requirements.txt
 
 ## 模型优缺点分析
-### GLM（广义线性模型）
+### 1. GLM（广义线性模型）
 ✅ 优点：结构简单、计算高效、可解释性强、不易过拟合
 ❌ 缺点：无法自动捕捉非线性关系，依赖特征工程质量
-### XGBoost
+### 2. XGBoost
 ✅ 优点：非线性拟合能力强、内置正则化防过拟合、自动选择最优分裂特征
 ❌ 缺点：参数众多调优成本高、训练时间长、需对类别特征预处理
-### ExtraTrees
+### 3. ExtraTrees
 ✅ 优点：随机性大减少计算量、对数据波动不敏感、无需标准化
 ❌ 缺点：缺少残差迭代机制、局部拟合能力弱于 XGBoost、精度相对较低
-### MLP
+### 4. MLP
 ✅ 优点：适用于非结构化数据、能拟合复杂非线性关系、高度并行化训练
 ❌ 缺点：在表格数据上需要大量训练轮次、黑盒难解释、超参数敏感
-### ResNet
+### 5. ResNet
 ✅ 优点：通过残差块解决深层网络退化、非线性表达能力强
 ❌ 缺点：参数多训练慢、网络稳定性依赖精细调参、内存占用高
-### Stacking（集成学习）
+### 6. Stacking（集成学习）
 ✅ 优点：融合多模型优势、无需精细特征选择、内置交叉验证防过拟合
 ❌ 缺点：组合与参数调试困难、逻辑路径不透明、训练成本高
 
